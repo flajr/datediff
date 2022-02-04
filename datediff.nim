@@ -1,15 +1,17 @@
-# datediff
-<<<<<<< HEAD
-Find differents between two dates
-=======
+import std/[ times, strutils]
+import docopt
 
-Program written in Nim to find difference between `DATE1` and `DATE2`.
+proc perr(s: string, i: int) =
+  writeLine(stderr, "ERROR: " & s)
+  flushFile(stderr)
+  quit i
 
-Check releases with `musl`.
+proc pinf(s: string, verbose: bool) =
+  if verbose:
+    writeLine(stderr, "INFO: " & s)
+    flushFile(stderr)
 
-## `datediff --help`
-
-```
+let doc = """
     datediff - Show dates difference in specific format
 
     + optionaly select a timezone with TZ environment variable
@@ -89,18 +91,58 @@ Check releases with `musl`.
       # 94694400
       TZ='America/Anchorage' datediff -h -f "yyyy-MM-dd-HH" 2022-03-13-01 2022-03-13-04
       # 2 # Because of DST change
-```
+    """.dedent()
 
-### Build
+let args = docopt(doc, version = "0.1.0", optionsFirst = true)
 
-Use `just` as modern alternative to `make`: https://github.com/casey/just or manually run commands in `Justfile`
+var 
+  verboseBool = false
+  timeFormat  : TimeFormat
+  dateTime1   : DateTime
+  dateTime2   : DateTime
 
-```
-just build
-```
+if not args["<DATE1>"]:
+  perr("Missing input <DATE1>", 1)
+if not args["<DATE2>"]:
+  perr("Missing input <DATE2>", 1)
 
-### Alternative
+if args["--verbose"]: 
+  verboseBool = true
+  pinf("Verbose output", verboseBool)
 
-There are greater tools available:
-https://github.com/hroptatyr/dateutils
->>>>>>> 7b9e4d9 (First commit)
+if not args["--format"]:
+  perr("Did not found FORMAT. See --help", 2)
+else:
+  pinf("Specified format is: " & $args["--format"], verboseBool)
+  try:
+    timeFormat = initTimeFormat($args["--format"])
+  except: 
+    perr(getCurrentExceptionMsg(), 3)
+
+pinf("Parsing DATE1: " & $args["<DATE1>"], verboseBool)
+try:
+  dateTime1 = parse($args["<DATE1>"], timeFormat)
+except: 
+  perr(getCurrentExceptionMsg(), 3)
+
+pinf("Parsing DATE2: " & $args["<DATE2>"], verboseBool)
+try:
+  dateTime2 = parse($args["<DATE2>"], timeFormat)
+except: 
+  perr(getCurrentExceptionMsg(), 3)
+
+pinf("Duration...", verboseBool)
+let dur = abs(dateTime1 - dateTime2)
+
+# Duration can be: inWeeks inDays inHours inMinutes inSeconds inMilliseconds inMicroseconds inNanoseconds
+
+if args["--seconds"]:
+  echo dur.inSeconds
+elif args["--minutes"]:
+  echo dur.inMinutes
+elif args["--hours"]:
+  echo dur.inHours
+elif args["--weeks"]:
+  echo dur.inWeeks
+else:
+  echo dur.inDays
