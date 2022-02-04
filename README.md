@@ -1,6 +1,6 @@
 # datediff
 
-Program written in Nim to find difference between `DATE1` and `DATE2`.
+Simple wrapper around Nim's std/times library to find difference between `DATE1` and `DATE2`.
 
 Check releases with `musl`.
 
