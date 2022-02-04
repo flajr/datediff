@@ -1,7 +1,4 @@
 # datediff
-<<<<<<< HEAD
-Find differents between two dates
-=======
 
 Program written in Nim to find difference between `DATE1` and `DATE2`.
 
@@ -103,4 +100,3 @@ just build
 
 There are greater tools available:
 https://github.com/hroptatyr/dateutils
->>>>>>> 7b9e4d9 (First commit)
